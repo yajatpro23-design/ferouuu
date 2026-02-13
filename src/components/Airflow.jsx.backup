@@ -1,0 +1,57 @@
+import { useRef, useMemo } from 'react'
+import { useFrame } from '@react-three/fiber'
+import * as THREE from 'three'
+
+export function Airflow() {
+    const meshRef = useRef()
+    const lines = useMemo(() => {
+        const temp = []
+        for (let i = 0; i < 50; i++) {
+            temp.push({
+                pos: new THREE.Vector3((Math.random() - 0.5) * 4, -2.5 + (Math.random() - 0.5) * 0.5, (Math.random() - 0.5) * 10),
+                speed: 0.1 + Math.random() * 0.1,
+                len: 1 + Math.random()
+            })
+        }
+        return temp
+    }, [])
+
+    // Use InstancedMesh for performance
+    // We want lines. Thin boxes scaled in Z.
+
+    useFrame((state) => {
+        if (!meshRef.current) return
+
+        // Animate instances? No, instanced attributes are harder to update per-frame cheaply without uniform time.
+        // Let's just do individual meshes in a group - simpler for 50 items.
+        // Wait, the previous approach was creating separate meshes?
+        // Let's refine the previous approach but inside a group ref.
+    })
+
+    return (
+        <group>
+            {lines.map((l, i) => (
+                <MovingStreak key={i} data={l} />
+            ))}
+        </group>
+    )
+}
+
+function MovingStreak({ data }) {
+    const ref = useRef()
+
+    useFrame(() => {
+        if (!ref.current) return
+        ref.current.position.z += data.speed
+        if (ref.current.position.z > 5) {
+            ref.current.position.z = -5
+        }
+    })
+
+    return (
+        <mesh ref={ref} position={data.pos} scale={[1, 1, data.len]}>
+            <boxGeometry args={[0.02, 0.02, 1]} />
+            <meshBasicMaterial color="#00ffff" transparent opacity={0.2} blending={THREE.AdditiveBlending} depthWrite={false} />
+        </mesh>
+    )
+}

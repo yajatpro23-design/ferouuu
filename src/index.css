@@ -1,0 +1,392 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
+
+:root {
+  --color-bg: #050505;
+  --color-text: #ffffff;
+  --color-accent: #00ffff;
+  --font-main: 'Inter', sans-serif;
+  --font-hud: 'Space Mono', monospace;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  cursor: none;
+}
+
+/* Custom Cursor */
+.custom-cursor {
+  position: fixed;
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--color-accent);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 99999;
+  transform: translate(-50%, -50%);
+  mix-blend-mode: difference;
+  transition: width 0.2s, height 0.2s, background-color 0.2s;
+}
+
+body,
+html {
+  width: 100%;
+  height: 100%;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-main);
+  overflow-y: auto;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  /* Cinematic Slower Scroll Feel if possible without lenis */
+  scroll-behavior: smooth;
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+  /* Thinner */
+}
+
+::-webkit-scrollbar-track {
+  background: #000;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-accent);
+  border-radius: 2px;
+}
+
+.canvas-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  z-index: 0;
+  /* Fade out slightly when scrolling fast? Complicated. Keep simple. */
+}
+
+/* Cinematic Overlays */
+.grain-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 50;
+  opacity: 0.06;
+  /* Subtler */
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.5'/%3E%3C/svg%3E");
+}
+
+.vignette-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 40;
+  background: radial-gradient(circle, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0.8) 100%);
+}
+
+.hud-ui {
+  position: fixed;
+  z-index: 100;
+  font-family: var(--font-hud);
+  font-size: 0.65rem;
+  color: var(--color-accent);
+  opacity: 0.6;
+  letter-spacing: 0.15em;
+  line-height: 1.6;
+  pointer-events: none;
+  text-shadow: 0 0 5px rgba(0, 255, 255, 0.3);
+}
+
+.blinking-cursor {
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
+}
+
+.ui-container {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+}
+
+.section {
+  height: 150vh;
+  /* More spacing for slower pacing */
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 4rem;
+  pointer-events: none;
+}
+
+.section-content {
+  max-width: 1400px;
+  width: 100%;
+  pointer-events: auto;
+  position: relative;
+  /* Content Fade Logic tied to scroll usually handled by JS, 
+     but we can add default transition for hover effects */
+}
+
+.left-align {
+  text-align: left;
+}
+
+.right-align {
+  text-align: right;
+}
+
+.center-align {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+h1,
+h2 {
+  font-family: var(--font-main);
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+  color: #fff;
+  transition: text-shadow 0.3s ease;
+}
+
+h1:hover,
+h2:hover {
+  text-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+}
+
+h1 {
+  font-size: 8rem;
+  font-weight: 800;
+  mix-blend-mode: overlay;
+}
+
+h2 {
+  font-size: 4.5rem;
+  font-weight: 700;
+}
+
+p {
+  font-family: var(--font-hud);
+  font-size: 0.85rem;
+  color: var(--color-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  line-height: 1.8;
+  opacity: 0.8;
+  border-left: 1px solid var(--color-accent);
+  padding-left: 1.5rem;
+  margin-top: 1rem;
+  max-width: 450px;
+  display: inline-block;
+  transition: all 0.3s ease;
+}
+
+p:hover {
+  opacity: 1;
+  text-shadow: 0 0 8px rgba(0, 255, 255, 0.5);
+  border-left-width: 3px;
+}
+
+/* Specific alignments */
+.right-align p {
+  border-left: none;
+  border-right: 1px solid var(--color-accent);
+  padding-left: 0;
+  padding-right: 1.5rem;
+}
+
+.right-align p:hover {
+  border-right-width: 3px;
+}
+
+.center-align p {
+  border: none;
+  border-top: 1px solid var(--color-accent);
+  padding: 2rem 0 0 0;
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.center-align p:hover {
+  border-top-width: 3px;
+}
+
+/* Buttons */
+.cta-button {
+  margin-top: 5rem;
+  padding: 1.2rem 3.5rem;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--color-accent);
+  color: var(--color-accent);
+  font-family: var(--font-hud);
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  text-transform: uppercase;
+  letter-spacing: 0.25em;
+  backdrop-filter: blur(8px);
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
+}
+
+.cta-button:hover {
+  background: rgba(0, 255, 255, 0.15);
+  box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
+  letter-spacing: 0.35em;
+}
+
+/* Glitch Title */
+.glitch-title {
+  position: relative;
+}
+
+.glitch-title::before,
+.glitch-title::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.7;
+}
+
+.glitch-title::before {
+  color: #ff00ff;
+  z-index: -1;
+  animation: glitch-anim-1 3s infinite linear alternate-reverse;
+}
+
+.glitch-title::after {
+  color: #00ffff;
+  z-index: -2;
+  animation: glitch-anim-2 4s infinite linear alternate-reverse;
+}
+
+/* New Animations */
+@keyframes glitch-anim-1 {
+  0% {
+    opacity: 1;
+    transform: translate(0);
+    clip-path: inset(0 0 0 0);
+  }
+
+  2% {
+    opacity: 1;
+    transform: translate(2px, 0);
+    clip-path: inset(10% 0 80% 0);
+  }
+
+  4% {
+    opacity: 1;
+    transform: translate(-2px, 0);
+    clip-path: inset(80% 0 10% 0);
+  }
+
+  5% {
+    opacity: 1;
+    transform: translate(0);
+    clip-path: inset(0 0 0 0);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translate(0);
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes glitch-anim-2 {
+  0% {
+    opacity: 1;
+    transform: translate(0);
+    clip-path: inset(0 0 0 0);
+  }
+
+  2% {
+    opacity: 1;
+    transform: translate(-2px, 0);
+    clip-path: inset(20% 0 60% 0);
+  }
+
+  4% {
+    opacity: 1;
+    transform: translate(2px, 0);
+    clip-path: inset(60% 0 20% 0);
+  }
+
+  5% {
+    opacity: 1;
+    transform: translate(0);
+    clip-path: inset(0 0 0 0);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translate(0);
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+/* Scramble Text Class */
+.scramble-text {
+  display: inline-block;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Reveal Text Class */
+.reveal-text {
+  will-change: transform, opacity;
+}
+
+@media (max-width: 768px) {
+  h1 {
+    font-size: 3.5rem;
+  }
+
+  h2 {
+    font-size: 2rem;
+  }
+
+  .section {
+    padding: 1.5rem;
+    height: 120vh;
+  }
+
+  .hud-ui {
+    font-size: 0.5rem;
+  }
+}
