@@ -33,7 +33,7 @@ export function ParticleTape({ count = 50000, ...props }) {
     const shaderArgs = useMemo(() => ({
         uniforms: {
             uTime: { value: 0 },
-            uColor: { value: new THREE.Color('#00ffff') }, // Cyan
+            uColor: { value: new THREE.Color('#00BFFF') }, // Brand Blue
             uMouse: { value: new THREE.Vector3(0, 0, 0) }, // Interaction point
             uPixelRatio: { value: typeof window !== 'undefined' ? window.devicePixelRatio : 2 }
         },
@@ -226,7 +226,7 @@ export function ParticleTape({ count = 50000, ...props }) {
             {/* Glow for Ring */}
             <mesh position={[0, 4, 0]} rotation={[Math.PI / 2, 0, 0]}>
                 <torusGeometry args={[4, 0.2, 16, 100]} />
-                <meshBasicMaterial color="#00ffff" transparent opacity={0.3} toneMapped={false} />
+                <meshBasicMaterial color="#00BFFF" transparent opacity={0.3} toneMapped={false} />
             </mesh>
 
             {/* 3. The Platform (Below) */}
@@ -235,7 +235,7 @@ export function ParticleTape({ count = 50000, ...props }) {
                 <mesh rotation={[-Math.PI / 2, 0, 0]}>
                     <circleGeometry args={[8, 64]} />
                     <meshStandardMaterial
-                        color="#0a0a0a"
+                        color="#050505"
                         roughness={0.2}
                         metalness={0.8}
                     />
@@ -243,7 +243,7 @@ export function ParticleTape({ count = 50000, ...props }) {
                 {/* Decorative Concentric Rings (HUD style) */}
                 <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, 0]}>
                     <ringGeometry args={[3.8, 3.85, 64]} />
-                    <meshBasicMaterial color="#00ffff" opacity={0.4} transparent />
+                    <meshBasicMaterial color="#00BFFF" opacity={0.4} transparent />
                 </mesh>
                 <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, 0]}>
                     <ringGeometry args={[5, 5.02, 64]} />
@@ -256,8 +256,8 @@ export function ParticleTape({ count = 50000, ...props }) {
                 position={[0, 10, 0]}
                 angle={0.6}
                 penumbra={0.5}
-                intensity={2}
-                color="#00ffff"
+                intensity={5}
+                color="#00BFFF"
                 distance={20}
                 decay={2}
             />

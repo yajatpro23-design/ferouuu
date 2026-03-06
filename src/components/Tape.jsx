@@ -30,72 +30,34 @@ export function Tape() {
                 trigger: ".ui-container",
                 start: "top top",
                 end: "bottom bottom",
-                scrub: 1.5, // High scrub for ultra-smooth spline feel
+                scrub: 1.5,
             }
         })
 
         // --- SCENE 1: HERO IDLE (0-30%) ---
-        // Just floating, handled by useFrame mostly.
-        // But let's rotate the wrapper slightly to show off the roll.
-        tl.to(wrap.rotation, { y: Math.PI, duration: 3, ease: "none" }, 0)
+        tl.to(wrap.rotation, { y: Math.PI * 2, duration: 3, ease: "power1.inOut" }, 0)
 
         // --- SCENE 2: TAPE UNFOLD (30-60%) ---
-        // "Spline-based animation" simulation
-        // 1. Move to "Pre-deployment" position
         tl.to(wrap.position, { x: 0, y: 1, z: 2, duration: 1.5, ease: "power2.inOut" }, 3)
-
-        // 2. Unfold: Transform from Cylinder to Flat Strip
-        // Rotate to align with length
         tl.to(wrap.rotation, { x: Math.PI / 2, y: 0, z: 0, duration: 1.5, ease: "power2.inOut" }, 3)
-        // Scale Y (length) up, Scale X/Z (radius) down to flatness
-        tl.to(wrap.scale, { x: 4, y: 0.1, z: 2.2, duration: 1.5, ease: "power2.inOut" }, 3)
+        tl.to(wrap.scale, { x: 4, y: 0.1, z: 2.5, duration: 1.5, ease: "power2.inOut" }, 3)
 
         // --- SCENE 3: ALIGNMENT (60-85%) ---
-        // Glide to laptop vent position
-        // Laptop vent is at roughly [0, -2.1, 0] (relative to world, since laptop is at [0, -2, 0])
-        // Let's verify laptop position in Scene.jsx... it is at [0, -2, 0].
-        // Vent is on bottom, so Y ~ -2.01.
-
-        // Initial approach
         tl.to(wrap.position, { x: 0, y: -2.5, z: 0, duration: 1.5, ease: "power3.out" }, 6)
-
-        // Precision alignment - "Magnetic precision"
-        // Overshoot slightly then settle?
-        // Hard to do overshoot with scrub, but we can do a calm ease.
         tl.to(wrap.rotation, { x: 0, y: 0, z: 0, duration: 1.5, ease: "power2.out" }, 6)
-
-        // Adjust scale to match vent perfectly
-        tl.to(wrap.scale, { x: 3.5, y: 0.05, z: 2.0, duration: 1.5, ease: "power2.inOut" }, 6)
+        tl.to(wrap.scale, { x: 3.5, y: 0.05, z: 2.2, duration: 1.5, ease: "power2.inOut" }, 6)
 
         // --- SCENE 4: APPLICATION (85%) ---
-        // "Snap" / Contact
-        // Move up to touch surface
         tl.to(wrap.position, { y: -2.08, duration: 0.5, ease: "expo.out" }, 8.5)
-
-        // Material Ripple Trigger
-        // We simulate ripple by animating material properties
-        tl.to(mesh.material, {
-            distortion: 2.0, // High distortion ripple
-            chromaticAberration: 0.5, // Flash
-            color: "#ffffff",
-            duration: 0.2,
-            yoyo: true,
-            repeat: 1
-        }, 8.5)
 
         // Settle to final clean state
         tl.to(mesh.material, {
-            distortion: 0,
-            chromaticAberration: 0.02,
-            roughness: 0.1,
-            color: "#00ffff", // Final brand color
+            roughness: 0.4,
+            color: "#111214",
             duration: 1.5
         }, 8.8)
 
-        // --- SCENE 5: CONFIRMATION (85-100%) ---
-        // Locked in place.
-        // Maybe slight scale out to "seal" edges
-        tl.to(wrap.scale, { x: 3.6, z: 2.1, duration: 1 }, 9)
+        tl.to(wrap.scale, { x: 3.6, z: 2.3, duration: 1 }, 9)
 
         return () => {
             if (tl.current) tl.current.kill()
@@ -107,33 +69,21 @@ export function Tape() {
             <group ref={innerRef}>
                 {/* Main Tape Mesh */}
                 <Cylinder args={[1, 1, 1, 64]} ref={meshRef} rotation={[0, 0, Math.PI / 2]}>
-                    <MeshTransmissionMaterial
-                        backside
-                        samples={10} // Higher quality
-                        resolution={1024} // Crisper reflections
-                        thickness={0.05}
-                        roughness={0.2}
-                        anisotropy={0.5}
-                        chromaticAberration={0.06}
-                        color="#aaffff"
+                    <meshStandardMaterial
+                        color="#111214"
+                        roughness={0.7}
+                        metalness={0.2}
                         emissive="#000000"
-                        transmission={0.98}
-                        distortion={0.2}
-                        distortionScale={0.5}
-                        temporalDistortion={0.0} // Keep static until ripple
-                        ior={1.5}
-                        attenuationDistance={1}
-                        attenuationColor="#ffffff"
                     />
                 </Cylinder>
 
-                {/* Holographic Edge Highlight (Fade in on unfold?) */}
-                <Cylinder args={[1.01, 1.01, 1, 64]} rotation={[0, 0, Math.PI / 2]}>
+                {/* Tactical Glow Border */}
+                <Cylinder args={[1.001, 1.001, 1.01, 64]} rotation={[0, 0, Math.PI / 2]}>
                     <meshBasicMaterial
-                        color="#00ffff"
+                        color="#00BFFF"
                         wireframe
                         transparent
-                        opacity={0.05}
+                        opacity={0.15}
                         blending={THREE.AdditiveBlending}
                     />
                 </Cylinder>

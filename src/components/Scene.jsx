@@ -8,9 +8,9 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import * as THREE from 'three'
 import { Tape } from './Tape'
 import { Laptop } from './Laptop'
-import { Dust } from './Dust'
 import { Airflow } from './Airflow'
 import { ParticleTape } from './ParticleTape'
+import { FloatingShapes } from './FloatingShapes'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -104,9 +104,10 @@ export function Scene({ scrollContainer }) {
 
     return (
         <>
-            <color attach="background" args={['#020202']} />
+            <color attach="background" args={['#0A0A0A']} />
 
-            <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
+            <Sparkles count={150} scale={20} size={2} speed={0.4} opacity={0.3} color="#00BFFF" />
+            <Sparkles count={100} scale={20} size={4} speed={0.8} opacity={0.15} color="#9d00ff" />
 
             <group name="content">
                 {/* Main Stage: Contains Physical Tape, Laptop, Dust lines */}
@@ -115,7 +116,7 @@ export function Scene({ scrollContainer }) {
                     <group position={[0, -2, 0]} name="laptop-group">
                         <Laptop />
                     </group>
-                    <Dust count={2000} />
+                    <FloatingShapes position={[3, 0.5, -2]} scale={[0.8, 0.8, 0.8]} />
                     <Airflow />
                 </group>
 
@@ -123,22 +124,17 @@ export function Scene({ scrollContainer }) {
                 <ParticleTape position={[0, -20, 0]} />
             </group>
 
-            <ambientLight intensity={0.2} />
-            <directionalLight position={[5, 10, 5]} intensity={4} color="#ccffff" castShadow />
-            <spotLight position={[-10, 0, -5]} intensity={15} color="#00ffff" angle={0.5} penumbra={1} />
-            <spotLight position={[10, -5, 5]} intensity={8} color="#ff00ff" angle={0.6} penumbra={0.5} />
+            <ambientLight intensity={0.5} />
+            <directionalLight position={[5, 10, 5]} intensity={2} color="#ffffff" castShadow />
+            <pointLight position={[-5, 5, 2]} intensity={10} color="#9d00ff" />
+            <pointLight position={[5, -5, 2]} intensity={15} color="#00BFFF" />
+            <spotLight position={[0, 10, 0]} intensity={20} color="#00BFFF" angle={0.8} penumbra={1} />
 
-            <Environment preset="city" blur={0.6} background={false} />
+            <Environment preset="night" blur={0.8} />
 
             <EffectComposer disableNormalPass>
-                <Bloom luminanceThreshold={0.2} intensity={1.5} radius={0.8} mipmapBlur />
-                <Noise opacity={0.15} />
-                <Vignette eskil={false} offset={0.05} darkness={1.2} />
-                <ChromaticAberration
-                    ref={chromaticRef}
-                    blendFunction={BlendFunction.NORMAL}
-                    offset={[0.002, 0.002]}
-                />
+                <Bloom luminanceThreshold={1} intensity={1} mipmapBlur />
+                <Vignette eskil={false} offset={0.1} darkness={1.1} />
             </EffectComposer>
         </>
     )

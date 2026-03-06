@@ -38,7 +38,7 @@ export function Airflow() {
         <Instances range={count} limit={count} ref={instancesRef}>
             <boxGeometry args={[0.005, 0.005, 1]} />
             <meshBasicMaterial
-                color="#00ffff"
+                color="#00BFFF"
                 transparent
                 opacity={0.3}
                 blending={THREE.AdditiveBlending}
@@ -76,7 +76,7 @@ function Streak({ data }) {
             ref={ref}
             position={[data.x, data.y, data.z]}
             scale={[1, 1, data.length]}
-            color={new THREE.Color("#00ffff").multiplyScalar(1 + Math.random())} // Slight variation
+            color={new THREE.Color("#00BFFF").multiplyScalar(1 + Math.random())} // Slight variation
         />
     )
 }
