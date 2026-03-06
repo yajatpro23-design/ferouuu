@@ -219,7 +219,8 @@ function App() {
 
       {/* HUD ELEMENTS */}
       {/* MINIMAL STATUS UI */}
-      <div className="hud-ui" style={{ top: '40px', left: '40px', textAlign: 'left', opacity: 0.6 }}>
+      <div className="hud-ui" style={{ top: '40px', left: '40px', textAlign: 'left', opacity: 0.8 }}>
+        <div style={{ color: '#00BFFF', fontSize: '1rem', fontWeight: 'bold', marginBottom: '8px' }}>RE-DESIGN_V2</div>
         <div style={{ color: '#fff', fontSize: '0.9rem', marginBottom: '4px', fontFamily: 'var(--font-main)', fontWeight: 700 }}>FERRO_WS</div>
         <span style={{ fontSize: '0.6rem' }}>{hudData.uptime} // {hudData.coords}</span>
       </div>
