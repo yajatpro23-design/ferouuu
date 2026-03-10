@@ -3,7 +3,7 @@ import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { MeshTransmissionMaterial } from '@react-three/drei'
 
-export function ParticleTape({ count = 50000, ...props }) {
+export function ParticleTape({ count = 20000, ...props }) {
     const points = useRef()
     const mouseTarget = useRef(new THREE.Vector3(0, 0, 0))
 

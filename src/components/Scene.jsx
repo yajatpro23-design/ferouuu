@@ -1,8 +1,7 @@
 import { useRef, useLayoutEffect, useEffect, useMemo } from 'react'
 import { useThree, useFrame } from '@react-three/fiber'
-import { Environment, Float, Sparkles, PerspectiveCamera, Stars } from '@react-three/drei'
-import { EffectComposer, Bloom, Noise, Vignette, ChromaticAberration, Glitch } from '@react-three/postprocessing'
-import { BlendFunction } from 'postprocessing'
+import { Environment, Sparkles, Stars, Float } from '@react-three/drei'
+import { EffectComposer, Bloom, Vignette, ChromaticAberration } from '@react-three/postprocessing'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import * as THREE from 'three'
@@ -10,20 +9,20 @@ import { Tape } from './Tape'
 import { Laptop } from './Laptop'
 import { Airflow } from './Airflow'
 import { ParticleTape } from './ParticleTape'
-import { FloatingShapes } from './FloatingShapes'
+import { FloatingDebris } from './FloatingDebris'
 
 gsap.registerPlugin(ScrollTrigger)
 
-export function Scene({ scrollContainer }) {
-    const { camera, gl, viewport, mouse } = useThree()
+export function Scene({ scrollContainer, selectedColor }) {
+    const { camera, gl, viewport } = useThree()
     const tl = useRef()
+    const tapeRef = useRef()
     const chromaticRef = useRef()
-    // Create a target vector for the camera to look at
     const focusTarget = useRef(new THREE.Vector3(0, 0, 0))
     const mainStageRef = useRef()
 
     useFrame((state) => {
-        // Look at the animated focus target
+        // Subtle mouse parallax
         const x = (state.mouse.x * viewport.width) / 100
         const y = (state.mouse.y * viewport.height) / 100
 
@@ -37,18 +36,18 @@ export function Scene({ scrollContainer }) {
     })
 
     useLayoutEffect(() => {
-        ScrollTrigger.refresh()
+        if (!scrollContainer.current) return
 
         tl.current = gsap.timeline({
             scrollTrigger: {
-                trigger: ".ui-container",
+                trigger: scrollContainer.current,
                 start: "top top",
                 end: "bottom bottom",
                 scrub: 1,
                 onUpdate: (self) => {
                     const velocity = Math.abs(self.getVelocity());
                     if (chromaticRef.current) {
-                        const targetOffset = Math.min(velocity * 0.0002, 0.01)
+                        const targetOffset = Math.min(velocity * 0.0002, 0.005)
                         chromaticRef.current.offset.x = THREE.MathUtils.lerp(chromaticRef.current.offset.x, targetOffset, 0.1);
                         chromaticRef.current.offset.y = THREE.MathUtils.lerp(chromaticRef.current.offset.y, targetOffset, 0.1);
                     }
@@ -56,46 +55,50 @@ export function Scene({ scrollContainer }) {
             }
         })
 
-        // --- TIMELINE ---
+        // --- CAMERA ANIMATION SEQUENCE ---
 
-        // 0-10: Hero
+        // Phase 1: Macro Hero
         tl.current.to(camera.position, { z: 4, y: 0.2, duration: 1 }, 0)
+        tl.current.to(camera.position, { z: 2.5, x: 1, y: 0.8, duration: 1 }, 1)
 
-        // 10-20: Macro
-        tl.current.to(camera.position, { z: 2, x: 1, y: 0.5, duration: 1 }, 1)
+        // Phase 2: Unroll / Texture Showcase
+        tl.current.to(camera.position, { z: 5, x: -3, y: 1.5, duration: 1.5 }, 2)
 
-        // 20-35: Unroll
-        tl.current.to(camera.position, { z: 5, x: -3, y: 2, duration: 1.5 }, 2)
-
-        // 35-50: Laptop Reveal
-        tl.current.to(camera.position, { x: 0, y: -4.5, z: 2.5, duration: 1.5 }, 3.5)
+        // Phase 3: Laptop Reveal
+        tl.current.to(camera.position, { x: 0, y: -4, z: 3, duration: 1.5 }, 3.5)
         tl.current.to(focusTarget.current, { y: -2, duration: 1.5 }, 3.5)
 
-        // 50-60: Align
-        tl.current.to(camera.position, { y: -2.8, z: 1.2, duration: 2 }, 5)
-
-        // 60-72: Snap
-        tl.current.to(camera.position, {
-            y: -2.7,
-            duration: 0.1,
-            yoyo: true,
-            repeat: 5,
-            ease: "power1.inOut"
-        }, 6.5)
-
-        // 72-88: Dust/Airflow
-        tl.current.to(camera.position, { x: 4, y: -1, z: 4, duration: 2 }, 7.2)
-        tl.current.to(focusTarget.current, { y: -2, duration: 2 }, 7.2)
-
-        // 88+: TRANSITION - Move Main Stage UP
-        if (mainStageRef.current) {
-            tl.current.to(mainStageRef.current.position, { y: 20, duration: 1.5 }, 8.0)
+        // Phase 4: Alignment Snap
+        tl.current.to(camera.position, { y: -2.8, z: 1.5, duration: 1 }, 5)
+        if (tapeRef.current) {
+            tl.current.to(tapeRef.current.position, { x: 0.6, y: -2, z: 0, duration: 1.5 }, 5)
         }
 
-        // 88-100: Final Hero (Particle Tape)
-        // Camera moves to Particle Stage at y: -20
-        tl.current.to(camera.position, { x: 0, y: -20, z: 6, duration: 1.5, ease: "power2.inOut" }, 8.5)
-        tl.current.to(focusTarget.current, { x: 0, y: -20, z: 0, duration: 1.5, ease: "power2.inOut" }, 8.5)
+        // The Application "Snap"
+        if (tapeRef.current) {
+            tl.current.to(tapeRef.current.position, { y: -2.065, duration: 0.2, ease: "bounce.out" }, 6.2)
+        }
+
+        // Shake on snap
+        tl.current.to(camera.position, {
+            y: "-=0.05",
+            duration: 0.05,
+            yoyo: true,
+            repeat: 10,
+            ease: "power2.inOut"
+        }, 6.2)
+
+        // Phase 5: Result / Reveal
+        tl.current.to(camera.position, { x: 5, y: -0.5, z: 5, duration: 2 }, 7.2)
+        tl.current.to(focusTarget.current, { y: -2, duration: 2 }, 7.2)
+
+        // Phase 6: Transition to Anti-Gravity
+        if (mainStageRef.current) {
+            tl.current.to(mainStageRef.current.position, { y: 25, duration: 2, ease: "power2.in" }, 8.5)
+        }
+
+        tl.current.to(camera.position, { x: 0, y: -20, z: 8, duration: 2, ease: "power2.inOut" }, 8.5)
+        tl.current.to(focusTarget.current, { x: 0, y: -20, z: 0, duration: 2, ease: "power2.inOut" }, 8.5)
 
         return () => {
             if (tl.current) tl.current.kill()
@@ -104,36 +107,38 @@ export function Scene({ scrollContainer }) {
 
     return (
         <>
-            <color attach="background" args={['#0A0A0A']} />
+            <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
+            <Sparkles count={200} scale={15} size={2} speed={0.4} opacity={0.4} color="#00BFFF" />
+            <FloatingDebris />
 
-            <Sparkles count={150} scale={20} size={2} speed={0.4} opacity={0.3} color="#00BFFF" />
-            <Sparkles count={100} scale={20} size={4} speed={0.8} opacity={0.15} color="#9d00ff" />
-
-            <group name="content">
-                {/* Main Stage: Contains Physical Tape, Laptop, Dust lines */}
-                <group ref={mainStageRef}>
-                    <Tape />
-                    <group position={[0, -2, 0]} name="laptop-group">
-                        <Laptop />
-                    </group>
-                    <FloatingShapes position={[3, 0.5, -2]} scale={[0.8, 0.8, 0.8]} />
-                    <Airflow />
+            <group ref={mainStageRef}>
+                <group ref={tapeRef}>
+                    <Tape selectedColor={selectedColor} />
                 </group>
-
-                {/* Final Stage: Particle Tape (Evolved) */}
-                <ParticleTape position={[0, -20, 0]} />
+                <group position={[0, -2, 0]}>
+                    <Laptop />
+                </group>
+                <Airflow />
             </group>
 
-            <ambientLight intensity={0.5} />
-            <directionalLight position={[5, 10, 5]} intensity={2} color="#ffffff" castShadow />
-            <pointLight position={[-5, 5, 2]} intensity={10} color="#9d00ff" />
-            <pointLight position={[5, -5, 2]} intensity={15} color="#00BFFF" />
-            <spotLight position={[0, 10, 0]} intensity={20} color="#00BFFF" angle={0.8} penumbra={1} />
+            <ParticleTape position={[0, -20, 0]} count={15000} />
 
-            <Environment preset="night" blur={0.8} />
+            <ambientLight intensity={0.5} />
+            <pointLight position={[0, 8, 5]} intensity={80} color="#00BFFF" />
+            <spotLight
+                position={[0, 15, 0]}
+                intensity={500}
+                color="#ffffff"
+                angle={0.3}
+                penumbra={1}
+                castShadow
+            />
+
+            <Environment preset="night" />
 
             <EffectComposer disableNormalPass>
-                <Bloom luminanceThreshold={1} intensity={1} mipmapBlur />
+                <Bloom luminanceThreshold={0.5} intensity={1.5} mipmapBlur />
+                <ChromaticAberration offset={[0.002, 0.002]} ref={chromaticRef} />
                 <Vignette eskil={false} offset={0.1} darkness={1.1} />
             </EffectComposer>
         </>

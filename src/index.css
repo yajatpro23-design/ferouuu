@@ -2,18 +2,17 @@
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
 
 :root {
-  /* Ferrotape Brand Palette */
-  --color-matte-black: #111214;
-  --color-space-grey: #6E737A;
-  --color-silver: #C7C9CC;
+  /* FerroO Tape Cinematic Palette */
+  --color-matte-black: #000000;
+  --color-space-grey: #1a1a1a;
+  --color-silver: #ffffff;
   --color-accent: #00BFFF;
-  /* Branding Blue */
 
-  --color-bg: #0A0A0A;
+  --color-bg: #000000;
   --color-text: #ffffff;
-  --color-text-dim: rgba(255, 255, 255, 0.6);
+  --color-text-dim: rgba(255, 255, 255, 0.7);
 
-  --font-main: 'Space Grotesk', sans-serif;
+  --font-main: 'Sora', sans-serif;
   --font-body: 'Sora', sans-serif;
   --font-hud: 'JetBrains Mono', monospace;
 
@@ -38,10 +37,13 @@
   border: 1px solid var(--color-accent);
   border-radius: 50%;
   pointer-events: none;
-  z-index: 99999;
+  z-index: 10000;
+  top: 0;
+  left: 0;
   transform: translate(-50%, -50%);
   mix-blend-mode: difference;
-  transition: width 0.2s, height 0.2s, background-color 0.2s;
+  transition: width 0.3s ease, height 0.3s ease, border-color 0.3s ease;
+  will-change: transform;
 }
 
 body,

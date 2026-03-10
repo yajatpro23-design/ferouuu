@@ -4,7 +4,7 @@ import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import gsap from 'gsap'
 
-export function Tape() {
+export function Tape({ selectedColor = '#111214' }) {
     const wrapperRef = useRef() // Controls Macro Movement (Scroll)
     const innerRef = useRef()   // Controls Micro Movement (Breathing)
     const meshRef = useRef()    // Controls Material/Shape
@@ -23,6 +23,13 @@ export function Tape() {
     useLayoutEffect(() => {
         const wrap = wrapperRef.current
         const mesh = meshRef.current
+
+        if (!wrap || !mesh) return
+
+        // Sync mesh color to prop, but allow GSAP to override if needed
+        if (mesh.material) {
+            mesh.material.color.set(selectedColor)
+        }
 
         // GSAP Timeline synced to scroll
         const tl = gsap.timeline({
@@ -52,39 +59,57 @@ export function Tape() {
 
         // Settle to final clean state
         tl.to(mesh.material, {
-            roughness: 0.4,
-            color: "#111214",
+            roughness: 0.3,
+            metalness: 0.7,
             duration: 1.5
         }, 8.8)
 
         tl.to(wrap.scale, { x: 3.6, z: 2.3, duration: 1 }, 9)
 
         return () => {
-            if (tl.current) tl.current.kill()
+            if (tl) tl.kill()
         }
-    }, [])
+    }, [selectedColor])
 
     return (
         <group ref={wrapperRef}>
             <group ref={innerRef}>
-                {/* Main Tape Mesh */}
+                {/* Main Tape Volume - Glassy / Translucent */}
                 <Cylinder args={[1, 1, 1, 64]} ref={meshRef} rotation={[0, 0, Math.PI / 2]}>
-                    <meshStandardMaterial
-                        color="#111214"
-                        roughness={0.7}
-                        metalness={0.2}
-                        emissive="#000000"
+                    <meshPhysicalMaterial
+                        roughness={0.05}
+                        metalness={0}
+                        transmission={0.9}
+                        ior={1.5}
+                        thickness={0.2}
+                        color="#ffffff"
+                        emissive={selectedColor}
+                        emissiveIntensity={1.5}
+                        transparent
                     />
                 </Cylinder>
 
-                {/* Tactical Glow Border */}
-                <Cylinder args={[1.001, 1.001, 1.01, 64]} rotation={[0, 0, Math.PI / 2]}>
-                    <meshBasicMaterial
-                        color="#00BFFF"
+                {/* THE NANO-MESH (Technical Grid Layer) - Matching Video */}
+                <Cylinder args={[1.002, 1.002, 1.01, 128, 64]} rotation={[0, 0, Math.PI / 2]}>
+                    <meshStandardMaterial
+                        color="#ffffff"
                         wireframe
                         transparent
-                        opacity={0.15}
+                        opacity={0.3}
                         blending={THREE.AdditiveBlending}
+                        emissive="#00BFFF"
+                        emissiveIntensity={1.5}
+                    />
+                </Cylinder>
+
+                {/* Internal Structural Glow (The 'Power' Core) */}
+                <Cylinder args={[0.92, 0.92, 1, 64]} rotation={[0, 0, Math.PI / 2]}>
+                    <meshStandardMaterial
+                        color="#ffffff"
+                        emissive="#ffffff"
+                        emissiveIntensity={15}
+                        transparent
+                        opacity={0.4}
                     />
                 </Cylinder>
             </group>
